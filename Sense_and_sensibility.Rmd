@@ -134,8 +134,8 @@ ggplot(data = EngagePlot2,aes(x = Chapter, y = count)) +
   geom_smooth(se = F)
 ```
 
-From this bar chart, we can find that Engage occurs more frequently during the middle part of this book, and get an increase at the end of the book. Its resealable that at the start of the book, under the pressure of life, Mr Henry's death, looking for a new home, the sisters has less time for their love stories.  
-After settled down, they have more time for social, meet and fall in love with their heroes and the stories turn to the secret engagement of Willoughby and the Edward's ordered engagement. So the words coming up.  
+From this bar chart, we can find that Engage occurs more frequently during the middle part of this book, and get an increase at the end of the book. It's reasonable that at the start of the book, under the pressure of life, Mr Henry's death, looking for a new home, the sisters has less time for their love stories.  
+After settled down, they have more time for social, meet and fall in love with their heroes and the stories turn to the secret engagement of Willoughby and the Edward's ordered engagement. So the words come up.  
 And associate with the sentiment plot above, the engagement plots are coming with the pain of heroines, so the sentiment socres for these chapters are pretty low. 
 
 
@@ -155,9 +155,9 @@ ggplot(counting, aes(x = chapter_n, y = count)) +
 ```
 
 From the barchart, we can see that "marry/marriage" appear more often in the chapter 6,14,15,17,30-33,37-40,48-50.  
-The counting of the word "marry/marriage" in increasingly larger in the last few chapters as the main characters are paving into the marriage.  
+The counting of the word "marry/marriage" is increasingly larger in the last few chapters as the main characters are paving into the marriage.  
 The first upper flow of the line appears around chapter 30 while the first upper flow of the line for "engage" appears around chapter 20.  
 It indicates the topic "engagement" mentions often before the topic "marriage".  
-The appearance of the word "marriage" increase with the emotional development to the two extreme sides where the characters get in love or get depart, the words about love, marriage, engage would appear more.
+The appearance of the word "marriage" increases with the emotional development to the two extreme sides(showed by the chapters where the sentiment socres for are pretty low or high), When the characters get in love or get depart, the words about love, marriage, engage would appear more.
 
 

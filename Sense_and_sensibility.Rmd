@@ -158,6 +158,6 @@ From the barchart, we can see that "marry/marriage" appear more often in the cha
 The counting of the word "marry/marriage" is increasingly larger in the last few chapters as the main characters are paving into the marriage.  
 The first upper flow of the line appears around chapter 30 while the first upper flow of the line for "engage" appears around chapter 20.  
 It indicates the topic "engagement" mentions often before the topic "marriage".  
-The appearance of the word "marriage" increases with the emotional development to the two extreme sides(showed by the chapters where the sentiment socres for are pretty low or high), When the characters get in love or get depart, the words about love, marriage, engage would appear more.
+The appearance of the word "marriage" increases with the emotional development to the two extreme sides(showed by the chapters where the sentiment socres for are pretty low or high).  When the characters get in love or get depart, the words about love, marriage, engage would appear more.
 
 

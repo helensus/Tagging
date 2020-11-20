@@ -16,7 +16,7 @@ tnum.authorize(ip="54.158.136.133")
 ```
 
 
-Get all sentences including "marry" or "marriage"
+##Get all sentences including "marry" or "marriage"
 ```{r}
 marry <- tnum.query("*sense* has * = REGEXP(\"marry|marriage\")", max=200)
 textdf1<-tnum.objectsToDf(marry)
@@ -56,7 +56,7 @@ The appearance of the word "marriage" increase with the emotional development to
 
 
 
-see the location in book
+## see the location in book
 ```{r}
 picmarry<-tnum.makePhraseGraphFromPathList(textdf1$subject)
 tnum.plotGraph(picmarry,size = 200)

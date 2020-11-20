@@ -1,0 +1,81 @@
+---
+title: "Sense_and_sensibility"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tnum)
+library(httr)
+library(tidyverse)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+addChapt <- function(data,name){
+  data$Chapter <- as.numeric(substring(separate(data, subject, c("Auther_Book","Chapter", "Paragraph","Sentence"),sep = "/")$Chapter, 9))
+  names(data)[names(data) == "Chapter"] <- name
+  return(data)
+}
+
+```
+
+
+## Query from Sense and sensibility
+
+```{r}
+# Get authorize
+tnum.authorize(ip="54.158.136.133")
+```
+
+```{r}
+tnum.getDatabasePhraseList("subject", levels=3, max=30000)
+```
+
+# Engage
+```{r}
+Engage <- tnum.query("*sense* has * = REGEXP(\"engage\")", max = 200)
+# Returned 1 thru 124 of 124 results
+EngageDf <- tnum.objectsToDf(Engage)
+# View(EngageDf)
+```
+
+# Add tags
+```{r}
+# tnum.tagByQuery("*sense* has * = REGEXP(\"engage\")", adds=("reference:engage_from_Sense"))
+# list(modifiedCount = 124, tagged = 124, removed = 0)
+```
+
+```{r}
+Engage2 <- tnum.query("@reference:engage_from_Sense", max = 200)
+# Returned 1 thru 124 of 124 results
+EngageDf2 <- tnum.objectsToDf(Engage2)
+# View(EngageDf2)
+head(EngageDf2)
+```
+
+## Plots
+
+# Path graph
+
+```{r}
+graEngage <- tnum.makePhraseGraphFromPathList(tnum.getAttrFromList(Engage2, "subject"))
+tnum.plotGraph(graEngage)
+```
+
+# Bar chats
+
+```{r}
+# Add chapter
+EngagePlot <- addChapt(EngageDf2,"Chapter")
+
+# Bar chart by chapter
+# EngagePlot <- EngageDf2 %>% group_by(Chapter) %>% summarize(count = n())
+
+ggplot(data = EngagePlot) + 
+  geom_bar(aes(x = Chapter), width = 1, fill="cadetblue3") + 
+  labs(x = "Chapter", y = "Frequency", title = "Engage") 
+# + coord_flip()
+```

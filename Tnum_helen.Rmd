@@ -1,0 +1,63 @@
+---
+title: "Tnum_assignment"
+author: "Helen"
+date: "11/19/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(httr)
+library(tnum)
+library(magrittr)
+#Get access to the database of Jane Austen's books
+tnum.authorize(ip="54.158.136.133") 
+```
+
+
+##Get all sentences including "marry" or "marriage"
+```{r}
+marry <- tnum.query("*sense* has * = REGEXP(\"marry|marriage\")", max=200)
+textdf1<-tnum.objectsToDf(marry)
+```
+
+## Tagging each sentences with reference
+
+```{r}
+#tnum.tagByQuery("*sense* has text = REGEXP(\"marry|marriage\")", "reference:marry|marriage")
+```
+
+```{r}
+num2 <- tnum.query("@reference:marry", max = 200)
+textdf2<-tnum.objectsToDf(num2)
+```
+
+## Plot of word "marry/marriage" by chapters
+
+```{r}
+textdf4<- separate(textdf1, col = subject, c("book","chapter","paragraph","sentence"), sep = "/", remove = FALSE)
+textdf4<- separate(textdf4, col = chapter, c("chapter","chapter_n"), sep = "-", remove = FALSE)
+counting<- textdf4 %>% group_by(chapter_n) %>% summarise(count = n())
+counting$chapter_n<- as.numeric(counting$chapter_n)
+counting<-arrange(counting,chapter_n)
+
+ggplot(counting, aes(x = chapter_n, y = count)) +
+  geom_bar(stat = "identity", fill = "cadetblue3") +
+  geom_smooth(se=F)+
+  labs(x = "Chapter", y = "Number of Marry/Marriage Appeared in the chapter", title = "Appearance of Marry/Marriage in each Chapter")
+```
+From the barchart, we can see that "marry/marriage" appear more often in the chapter 6,14,15,17,30-33,37-40,48-50.
+The counting of the word "marry/marriage" in increasingly larger in the last few chapters as the main characters are paving into the marriage.
+The first upper flow of the line appears around chapter 30 while the first upper flow of the line for "engage" appears around chapter 20.
+It indicates the topic "engagement" mentions often before the topic "marriage".
+The appearance of the word "marriage" increase with the emotional development to the two extreme sides where the characters get in love or get depart, the words about love, marriage, engage would appear more.
+
+
+
+
+## see the location in book
+```{r}
+picmarry<-tnum.makePhraseGraphFromPathList(textdf1$subject)
+tnum.plotGraph(picmarry,size = 200)
+```

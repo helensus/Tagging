@@ -1,0 +1,62 @@
+---
+title: "TNUM"
+author: "Maggie Sha"
+date: "2020/11/19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tnum)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+devtools::install_github("truenumbers/tnum/tnum")
+tnum.authorize(ip="54.158.136.133")
+```
+
+
+# Data cleaning and organization
+```{r}
+# "love" in sense and sensibility
+num2 <- tnum.query("*sense* has text = REGEXP(\"love\")",max=200)
+textdf <- tnum.objectsToDf(num2)
+# View(textdf)
+
+# str_split(tnum.getAttrFromList(num2[5], "subject"), "[:/]")
+
+# returns chapter number
+# as.numeric(substring(str_split(tnum.getAttrFromList(num2[5], "subject"), "[:/]")[[1]][4], 9))
+
+# apply it in a loop
+for(i in 1:length(num2)){
+  textdf$chap_num[i] <- as.numeric(substring(str_split(tnum.getAttrFromList(num2[i], "subject"), "[:/]")[[1]][4], 9))
+}
+count1 <- textdf %>%  group_by(chap_num) %>% summarise(count = n())
+```
+
+##  Plots
+```{r}
+# bar chart
+ggplot(count1,aes(x=chap_num,y=count)) + 
+  geom_bar(stat="identity",fill="cadetblue3") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
+  geom_smooth(se=F) +
+  ggtitle("counts of 'love' in each chapter of the book 'sense and sensibility'")
+```
+
+Explanation: from the plot above, the distribution of the word 'love' in 'sense and sensibility' follows a 'W' shape.
+             In the early chapter 3 and final chapters 44, 45 and 49, this word is mentioned a lot more than the middle chapters.
+
+             
+             In the beginning of the book, the two daughters Elinor and Marianne in the Dashwood family lead a rich and peaceful life.
+             They both have romantic relationships at that time, so the word 'love' is talked frequently.
+             Edward Ferrars is Elinor's lover, he is a well-educated men from a rich family.
+             However, after Dashwood passed away, all his money was passed to his first son, and the daughters left with a small income.
+             Edward's mother does not support his relationship with Elinor, but Edward insisted. As a result,
+             Edward is driven out of home and he gets no financial support from his family since then.
+             Thus, in the middle plot, both of the characters are poor and they spend most of their time working and supporting themselves.
+             This could be a possible reason that why 'love' is mentioned less frequently.
+             Until in the end, their life become stable so they start to talk about 'love' again.
+

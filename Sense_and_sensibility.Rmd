@@ -1,6 +1,6 @@
 ---
 title: "Sense_and_sensibility"
-author: "Runqi Zhao, Haoran Su"
+author: "Runqi Zhao, Haoran Su, Maggie Sha, Haoyu Wang"
 date: "2020/11/19"
 output:
   html_document:
@@ -36,7 +36,7 @@ addChapt <- function(data,name){
 ```
 
 
-# Query from Sense and sensibility
+# Query from Sense and Sensibility
 
 ```{r}
 # Get authorize
@@ -47,40 +47,73 @@ tnum.authorize(ip="54.158.136.133")
 # tnum.getDatabasePhraseList("subject", levels=3, max=30000)
 ```
 
-*Get all sentences including "marry" or "marriage" and "engage"*
+*Get all sentences including "marry" or "marriage"*  
 
 ```{r}
 marry <- tnum.query("*sense* has * = REGEXP(\"marry|marriage\")", max=200)
 textdf1<-tnum.objectsToDf(marry)
 ```
-
+*Get all sentences including "engage"*  
 ```{r}
 Engage <- tnum.query("*sense* has * = REGEXP(\"engage\")", max = 200)
 # Returned 1 thru 124 of 124 results
 EngageDf <- tnum.objectsToDf(Engage)
 # View(EngageDf)
 ```
-*Tagging each sentences with reference*
+*Get all sentences including "love"*  
+```{r}
+# "Love" in sense and sensibility
+Love <- tnum.query("*sense* has text = REGEXP(\"love\")",max=200)
+textdf <- tnum.objectsToDf(Love)
+
+# Apply it in a loop
+for(i in 1:length(Love)){
+  textdf$chap_num[i] <- as.numeric(substring(str_split(tnum.getAttrFromList(Love[i], "subject"), "[:/]")[[1]][4], 9))
+}
+count1 <- textdf %>%  group_by(chap_num) %>% summarise(count = n())
+```
+*Get all sentences including "pounds or money"*  
+```{r}
+Monetary <- tnum.query("*sense* has * = REGEXP(\"pounds | money | pound\")", max = 200) 
+
+df_1 <- tnum.objectsToDf(Monetary)
+
+```
+
+<br><br>
+
+*Tagging each sentences with reference*  
 ```{r}
 # tnum.tagByQuery("*sense* has * = REGEXP(\"engage\")", adds=("reference:engage_from_Sense"))
 # list(modifiedCount = 124, tagged = 124, removed = 0)
 
 # tnum.tagByQuery("*sense* has text = REGEXP(\"marry|marriage\")", "reference:marry_from_Sense")
 
+# tnum.tagByQuery("*sense* has * = REGEXP(\"pounds | money | pound\")", adds=("reference:Monetary_From_Sense"))
+
 ```
-*Get the text back with tags*
+
+<br><br>
+
+*Get the text back with tags*  
 ```{r}
+# Engage
 Engage2 <- tnum.query("@reference:engage_from_Sense", max = 200)
 # Returned 1 thru 124 of 124 results
 EngageDf2 <- tnum.objectsToDf(Engage2)
 # View(EngageDf2)
 # head(EngageDf2)
 
-num2 <- tnum.query("@reference:marry_from_Sense", max = 200)
-textdf2<-tnum.objectsToDf(num2)
+# Marry
+Marry <- tnum.query("@reference:marry_from_Sense", max = 200)
+textdf2<-tnum.objectsToDf(Marry)
+
+# Query
+Monetary2 <- tnum.query("@reference:Monetary_From_Sense", max = 200)
+df_2 <- tnum.objectsToDf(Monetary2)
 ```
 
-# Plot of wordby chapters
+# Plot of word by chapters
 
 ## Path graph
 *Take engage as example*
@@ -160,4 +193,48 @@ The first upper flow of the line appears around chapter 30 while the first upper
 It indicates the topic "engagement" mentions often before the topic "marriage".  
 The appearance of the word "marriage" increases with the emotional development to the two extreme sides(showed by the chapters where the sentiment socres for are pretty low or high).  When the characters get in love or get depart, the words about love, marriage, engage would appear more.
 
+## Word Love
 
+```{r}
+# bar chart
+ggplot(count1,aes(x=chap_num,y=count)) + 
+  geom_bar(stat="identity",fill="cadetblue3") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
+  geom_smooth(se=F) +
+  labs(x = "Chapter",y = "Number of Love Appeared in the chapter")+
+  ggtitle("Counts of 'Love' in each chapter")
+```
+
+From the plot above, the distribution of the word 'love' in 'sense and sensibility' follows a 'W' shape.  
+In the early chapter 3 and final chapters 44, 45 and 49, this word is mentioned a lot more than the middle chapters.  
+In the beginning of the book, the two daughters Elinor and Marianne in the Dashwood family lead a rich and peaceful life.  
+They both have romantic relationships at that time, so the word 'love' is talked frequently.  
+Edward Ferrars is Elinor's lover, he is a well-educated men from a rich family.  
+However, after Dashwood passed away, all his money was passed to his first son, and the daughters left with a small income.  
+Edward's mother does not support his relationship with Elinor, but Edward insisted. As a result, Edward is driven out of home and he gets no financial support from his family since then.  
+Thus, in the middle plot, both of the characters are poor and they spend most of their time working and supporting themselves.  
+This could be a possible reason that why 'love' is mentioned less frequently.  
+Until in the end, their life become stable so they start to talk about 'love' again.
+
+## Words Pounds/Money
+```{r}
+# bar chart
+df_2 <- addChapt(df_2,"number")
+
+count <- df_2 %>% group_by(number) %>% summarise(count = n())
+ggplot(count, aes(x = number, y = count)) + geom_bar(stat = "identity", fill = "cadetblue3") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13, face = "bold")) +
+  labs(x = "Chapter",y = "Number of Love Appeared in the chapter")+
+  geom_smooth(se = FALSE, col = "lightblue", lwd = 0.75) +
+  ggtitle("Monetary Count In Each Chapter")
+```
+
+From the plot, we can see that Chapter 1 and Chapter 2 have the most description about monetary. Money, which refers to Wealth, Social Class, and Greed, probably appears most frequently in the first two chapter.  
+Chapter 1 started with seven thousand pounds, which is immediately interested in questions of wealth, property, and inheritance. A woman cannot make their own fortunes and must rely on inheriting or marrying into wealth.  
+For Chapter2, probably that women actually indulged in sadness and found a joy. She tends to express feelings to the greatest extent, whether it is happiness or sadness. However, even though people are already very rich, they are still too greedy to consider helping others. There also a person who placed his wealth above his love and obligation to his family, because that person quickly changed his mind from giving £3,000 to giving them occasional gifts.  
+Seems like in chapter 30, they had trouble in 50,000 pounds.  
+In chapter 33, maybe they have some family issues with those money.  
+In chapter 38, I would say that woman only wanted to marry someone who would not improve the family fortune.  
+Probably this marriage was the result of idleness and ignorance, not love. Marianne is overcome by her happiness at this fortuitous turn of events.  

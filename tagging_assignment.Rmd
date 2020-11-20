@@ -1,0 +1,66 @@
+---
+title: "Tagging text"
+author: "Haoyu Wang"
+date: "11/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(httr)
+library(tnum)
+library(magrittr)
+```
+
+```{r}
+
+tnum.authorize(ip="54.158.136.133")
+
+query_1 <- tnum.query("*sense* has * = REGEXP(\"pounds | money | pound\")", max = 200) 
+
+df_1 <- tnum.objectsToDf(query1)
+
+tnum.tagByQuery("*sense* has * = REGEXP(\"pounds | money | pound\")", 
+                adds=("reference:Monetary_From_Sense"))
+
+query_2 <- tnum.query("@reference:Monetary_From_Sense", max = 200)
+
+df_2 <- tnum.objectsToDf(query_2)
+
+df_2 %<>% separate(subject, c("book","chapter", "paragraph", "sentence"), sep = "/")
+df_2 %<>% separate(chapter, c("chapter", "number"), sep = "-")
+df_2$number %<>% as.numeric()
+
+count <- df_2 %>% group_by(number) %>% summarise(count = n())
+
+ggplot(df_2, aes(x = factor(number))) + geom_bar(aes(fill = factor(number))) +
+    theme(axis.text.x = element_text(angle = 60, hjust = 1),
+          axis.text = element_text(size = 11),
+          axis.title = element_text(size = 13, face = "bold")) +
+    labs(x = "ChapterNumber", y = "frequency") +
+    ggtitle("Monetary Count In Each Chapter") +
+    guides(fill = FALSE)
+
+ggplot(count, aes(x = number, y = count)) + geom_bar(stat = "identity", fill = "pink") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 13, face = "bold")) +
+  labs(x = "ChapterNumber", y = "Frequency") +
+  geom_smooth(se = FALSE, col = "lightblue", lwd = 0.75) +
+  ggtitle("Monetary Count In Each Chapter")
+```
+<p style="text-indent:32px;">From the plot, we can see that Chapter 1 and Chapter 2 have the most description about monetary. Money, which refers to Wealth, Social Class, and Greed, probably appears most frequently in the first two chapter. </p>
+
+<p style="text-indent:32px;">Chapter 1 started with seven thousand pounds, which is immediately interested in questions of wealth, property, and inheritance. A woman cannot make their own fortunes and must rely on inheriting or marrying into wealth.</p>
+
+<p style="text-indent:32px;">For Chapter2, probably that women actually indulged in sadness and found a joy. She tends to express feelings to the greatest extent, whether it is happiness or sadness. However, even though people are already very rich, they are still too greedy to consider helping others. There also a person who placed his wealth above his love and obligation to his family, because that person quickly changed his mind from giving £3,000 to giving them occasional gifts.</p>
+
+<p style="text-indent:32px;">Seems like in chapter 30, they had trouble in 50,000 pounds.</p>
+
+<p style="text-indent:32px;">In chapter 33, maybe they have some family issues with those money.</p>
+
+<p style="text-indent:32px;">In chapter 38, I would say that woman only wanted to marry someone who would not improve the family fortune.</p>
+
+<p style="text-indent:32px;"> Probably this marriage was the result of idleness and ignorance, not love. Marianne is overcome by her happiness at this fortuitous turn of events.</p>
+

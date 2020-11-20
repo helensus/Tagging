@@ -11,6 +11,10 @@ library(tidyverse)
 library(magrittr)
 library(dplyr)
 library(ggplot2)
+library(tidytext)
+library(janeaustenr)
+library(stringr)
+library(tidyr)
 ```
 
 ```{r}
@@ -19,7 +23,6 @@ addChapt <- function(data,name){
   names(data)[names(data) == "Chapter"] <- name
   return(data)
 }
-
 ```
 
 
@@ -53,7 +56,7 @@ Engage2 <- tnum.query("@reference:engage_from_Sense", max = 200)
 # Returned 1 thru 124 of 124 results
 EngageDf2 <- tnum.objectsToDf(Engage2)
 # View(EngageDf2)
-head(EngageDf2)
+# head(EngageDf2)
 ```
 
 ## Plots
@@ -65,6 +68,34 @@ graEngage <- tnum.makePhraseGraphFromPathList(tnum.getAttrFromList(Engage2, "sub
 tnum.plotGraph(graEngage)
 ```
 
+# Sentiment analysis
+
+```{r}
+tidy_books <- austen_books() %>%
+  group_by(book) %>%
+  mutate(
+    linenumber = row_number(),
+    chapter = cumsum(str_detect(text, 
+                                regex("^chapter [\\divxlc]", 
+                                      ignore_case = TRUE)))) %>%
+  ungroup() %>%
+  unnest_tokens(word, text)
+
+tidy_books <- tidy_books %>%  filter(book == "Sense & Sensibility") 
+
+jane_austen_sentiment <- tidy_books %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(book, index = chapter, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative)
+
+ggplot(jane_austen_sentiment, aes(index, sentiment)) +
+  geom_col(show.legend = FALSE, fill = "lightblue", width = 0.8 ) +
+  labs(x = "Chapter", y = "Score", title = "Sentiment") +
+  geom_smooth(se = F)
+```
+
+
 # Bar chats
 
 ```{r}
@@ -72,10 +103,11 @@ tnum.plotGraph(graEngage)
 EngagePlot <- addChapt(EngageDf2,"Chapter")
 
 # Bar chart by chapter
-# EngagePlot <- EngageDf2 %>% group_by(Chapter) %>% summarize(count = n())
+EngagePlot2 <- EngagePlot %>% group_by(Chapter) %>% summarize(count = n())
 
-ggplot(data = EngagePlot) + 
-  geom_bar(aes(x = Chapter), width = 1, fill="cadetblue3") + 
-  labs(x = "Chapter", y = "Frequency", title = "Engage") 
-# + coord_flip()
+ggplot(data = EngagePlot2,aes(x = Chapter, y = count)) + 
+  geom_bar(width = 0.8, fill="cadetblue3",stat="identity") + 
+  labs(x = "Chapter", y = "Frequency", title = "Engage") + 
+  geom_smooth(se = F)
 ```
+From this bar chart, we can find there a

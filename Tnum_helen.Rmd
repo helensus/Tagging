@@ -61,3 +61,20 @@ The appearance of the word "marriage" increase with the emotional development to
 picmarry<-tnum.makePhraseGraphFromPathList(textdf1$subject)
 tnum.plotGraph(picmarry,size = 200)
 ```
+
+##use package "qdap" -grading by the extent of words showing positive or negative feelings
+```{r}
+library(qdap)
+marry.pol<-polarity(as.character(textdf1$string.value))
+
+ggplot(marry.pol$all,aes(x=polarity,y=..density..))+
+  geom_histogram(binwidth=0.25,
+                 fill="darkred",
+                 colour="grey60",
+                 size=0.2)+
+  geom_density(size=0.75)
+
+```
+
+Centering on 0 indicates that the sentences containing "marry" or "marriage" has mostly neutral words and equal number of graded words.
+Leg at the positive side shows the polarity of positive words in some sentences.

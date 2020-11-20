@@ -110,4 +110,6 @@ ggplot(data = EngagePlot2,aes(x = Chapter, y = count)) +
   labs(x = "Chapter", y = "Frequency", title = "Engage") + 
   geom_smooth(se = F)
 ```
-From this bar chart, we can find there a
+From this bar chart, we can find that Engage occurs more frequently during the middle part of this book, and get an increase at the end of the book. Its resealable that at the start of the book, under the pressure of life, Mr Henry's death, looking for a new home, the sisters has less time for their love stories.  
+After settled down, they have more time for social, meet and fall in love with their heros and the stories turn to the secret engagement of Willoughby and the Edward's ordered engagement. So the words coming up.  
+And associate with the sentiment plot above, the engagement plots are coming with the pain of heroines, so the sentiment socres for these chapters are pretty low. 
